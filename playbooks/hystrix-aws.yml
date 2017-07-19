@@ -1,0 +1,77 @@
+---
+
+- name: Hystrix
+  hosts: ec2
+  connection: ssh
+  sudo: yes
+
+  tasks:
+  - name: Upgrading System
+    command: sudo apt-get upgrade -y
+
+  - name: Install wget
+    apt: pkg=wget
+    apt: pkg=git
+    apt: pkg=openjdk-8-jdk
+    apt: unzip
+
+  - name: Installing gradle package
+    command: wget https://services.gradle.org/distributions/gradle-3.4.1-bin.zip
+
+  - name: Making Dir gradle
+    command: sudo mkdir /opt/gradle      
+
+  - name: Making Dir gradle
+    command: sudo unzip -d /opt/gradle gradle-3.4.1-bin.zip
+
+  - name: Exporting PATH
+    command: export PATH=$PATH:/opt/gradle/gradle-3.4.1/bin
+
+  - name: Installing erlang package
+    command: wget http://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc     
+
+  - name: Adding erlang key
+    command: sudo apt-key add erlang_solutions.asc -y
+
+  - name: Updating system
+    command: sudo apt-get update -y
+
+  - name: Installing erlang
+    apt: pkg=erlang
+    apt: pkg=erlang-nox
+
+  - name: Enabling rabbitmq app repo
+    command: echo "deb http://www.rabbitmq.com/debian/ testing main" >> /etc/apt/sources.list
+
+  - name: Getting public key for rabbitmq
+    command: wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+
+  - name: Adding public key for rabbitmq
+    commad: sudo apt-key add rabbitmq-signing-key-public.asc
+ 
+  - name: Updating system
+    command: sudo apt-get update -y
+ 
+  - name: Updating system
+    command: sudo apt-get install rabbitmq-server -y
+
+  - name: Enabling rabbitmq-server
+    command: systemctl enable rabbitmq-server
+
+  - name: Start rabbitmq-server
+    command: systemctl start rabbitmq-server
+
+  - name: Start rabbitmq plugins
+    command: sudo rabbitmq-plugins enable rabbitmq_management
+
+  - name: Installing git and gradle
+    command: sudo rabbitmq-plugins enable rabbitmq_management
+
+  - name: Cloning Hystrix git repo
+    command: git clone git@github.com:Netflix/Hystrix.git
+
+  - name: Changing dir
+    command: cd Hystrix/hystrix-dashboard
+  
+  - name: Running hystix-dashboard.Check 127.0.0.1/7979/hystrix-dashboard
+    command: ../gradlew jettyRun

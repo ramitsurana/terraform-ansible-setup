@@ -1,0 +1,82 @@
+---
+
+- name: Jenkins
+  hosts: gce1
+  connection: ssh
+  sudo: yes
+  ignore_errors: yes
+
+  tasks:
+  - name: Installing Software Properties
+    become: yes
+    command: apt-get install software-properties-common -y
+
+  - name: Add Oracle Java Repository
+    become: yes
+    apt_repository: repo='ppa:webupd8team/java'
+
+  - name: Add repo2
+    command: echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list
+
+  - name: Adding repo3
+    command: echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list
+
+  - name: Adding Key 1
+    command: apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+
+  - name: apt update
+    apt: update_cache=yes cache_valid_time=3600
+    register: apt_result
+    until: apt_result|success
+    retries: 3
+    delay: 1
+    sudo: yes
+    ignore_errors: yes
+
+  - name: retry if needed using command apt-get update
+    command: apt-get update
+    sudo: yes
+    when: apt_result|failed
+
+  - name: Fixing dpkg
+    command: sudo dpkg --configure -a
+
+  - name: Echoing java 8
+    become: yes
+    debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'    
+
+  - name: Installing Java 8 Installer 
+    become: yes
+    command: apt-get install oracle-java8-installer -y
+
+  - name: Installing Java 8
+    command: sudo apt-get install oracle-java8-set-default ca-certificates -y
+
+  - name: Configure apt key for jenkins repository
+    action: apt_key url=http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key state=present
+
+  - name: Add jenkins APT repository
+    action: apt_repository repo='deb http://pkg.jenkins-ci.org/debian-stable binary/' state=present      
+
+  - name: apt update
+    apt: update_cache=yes cache_valid_time=3600
+    register: apt_result
+    until: apt_result|success
+    retries: 3
+    delay: 1
+    sudo: yes
+    ignore_errors: yes
+
+  - name: retry if needed using command apt-get update
+    command: apt-get update
+    sudo: yes
+    when: apt_result|failed
+
+  - name: Fixing unmet dependency
+    command: sudo apt-get -f install -y
+
+  - name: Installing Jenkins
+    command: sudo apt-get install jenkins -y
+
+  - name: Starting Jenkins
+    command: sudo service jenkins restart

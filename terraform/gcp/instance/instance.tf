@@ -39,6 +39,13 @@ resource "google_compute_forwarding_rule" "http" {
   port_range = "80"
 }
 
+resource "google_compute_forwarding_rule" "tcp" {
+  name = "tf-sample-tcp-forwarding-rule"
+  target = "${google_compute_target_pool.sample.self_link}"
+  ip_address = "${google_compute_address.sample.address}"
+  port_range = "8080"
+}
+
 resource "google_compute_forwarding_rule" "https" {
   name = "tf-sample-https-forwarding-rule"
   target = "${google_compute_target_pool.sample.self_link}"
@@ -61,7 +68,7 @@ resource "google_compute_firewall" "sample" {
 
   allow {
     protocol = "tcp"
-    ports = ["80", "443"]
+    ports = ["80", "443", "8080"]
   }
 
   source_ranges = ["0.0.0.0/0"]

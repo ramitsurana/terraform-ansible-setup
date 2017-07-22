@@ -1,0 +1,45 @@
+---
+
+- name: Openshift
+  hosts: gce
+  connection: ssh
+
+  tasks:
+  - name: Copy openshift.sh on host
+    copy: src=openshift.sh dest=~/home/$USER/
+
+  - name: Chnaging Permissions
+    command: sudo chmod +x ~/home/$USER/openshift.sh
+
+  - name: Installations
+    command: sudo apt install qemu-kvm libvirt-bin -y
+
+#  - name: Installations
+#    command: sudo gpasswd -a $(USER) libvirtd -y
+
+  - name: Installing Drivers
+    get_url:
+      url: https://github.com/dhiltgen/docker-machine-kvm/releases/download/v0.10.0/docker-machine-driver-kvm-ubuntu14.04
+      dest: /usr/local/bin/docker-machine-driver-kvm
+      force_basic_auth: yes    
+
+  - name: Changing Permissions
+    command: sudo chmod +x /usr/local/bin/docker-machine-driver-kvm
+
+  - name: Installing Minishift tar
+    command: sudo wget -P /home/$USER/ https://github.com/minishift/minishift/releases/download/v1.2.0/minishift-1.2.0-linux-amd64.tgz
+
+  - name: Untar minishift
+    command: tar xvzf /home/$USER/minishift-1.2.0-linux-amd64.tgz
+
+  - name: Adding to BASH
+    command: sudo mv /home/$USER/minishift /usr/local/bin/
+
+  - name: Starting minishfit
+    command: sudo minishift start
+
+  - name: Starting minishfit Dashboard
+    command: sudo minishift console
+  
+# - name: Running Openshift Script
+#   command: sudo nohup ./home/$USER/openshift.sh > /dev/null 2>&1 &      

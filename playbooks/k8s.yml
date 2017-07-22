@@ -1,12 +1,12 @@
 ---
 
 - name: Kubernetes
-  hosts: gce
+  hosts: ec2 for AWS, gce for Google Cloud
   connection: ssh
 
   tasks:
   - name: Installing from https://get.k8s.io
-    command: export KUBERNETES_PROVIDER=gce; wget -q -O - https://get.k8s.io | bash
+    command: export KUBERNETES_PROVIDER=gce/aws/azure; wget -q -O - https://get.k8s.io | bash
 
   - name: Installing kubectl
     command: curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl > kubectl

@@ -1,24 +1,21 @@
 ---
 
 - name: Consul
-  hosts: ec2
+  hosts: ec2 for AWS, gce for Google Cloud
   connection: ssh
 
   tasks:
   - name: Downloading Consul
-    command: wget https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_linux_amd64.zip
+    command: wget -P /home/$USER/ https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_linux_amd64.zip 
 
   - name: Unzipping
-    command: unzip consul_0.8.5_linux_amd64.zip
+    command: sudo unzip /home/$USER/consul_0.8.5_linux_amd64.zip
 
   - name: Adding permissions
-    command: chmod +x consul
+    command: sudo chmod +x /home/$USER/consul
  
   - name: Changing dir
-    command: sudo mv consul /usr/bin/ 
-
-  - name: Runnning Consul
-    command: consul agent -dev -data-dir=/tmp/consul
+    command: sudo mv /home/$USER/consul /usr/bin/ 
 
   - name: Creating Dir and changing dir
     command: mkdir /opt/consul-ui && cd /opt/consul-ui
@@ -31,6 +28,9 @@
  
   - name: Running consul UI. Check http://localhost:8500/ui
     command: consul agent -dev -ui -data-dir /tmp/consul
+
+  - name: Runnning Consul
+    command: consul agent -dev -data-dir=/tmp/consul -d
 
        
 

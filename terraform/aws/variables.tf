@@ -1,11 +1,11 @@
 variable "access_key" {
     description = "The AWS access key."
-    default = "ACCESS_KEY"
+    default = ""
 }
 
 variable "secret_key" {
     description = "The AWS secret key."
-    default = "SECRET_KEY"
+    default = ""
 }
 
 variable "region" {

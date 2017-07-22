@@ -9,8 +9,8 @@ Setting up your complete infrastructure on cloud premises using Infrastructure a
 | Cloud         | Requirements                                  | Operating System                           |    Region      |
 | ------------- |:---------------------------------------------:|:------------------------------------------:|----------------|
 | AWS           | *Nil*                                         | Ubuntu 14.04 (ami-21766642)                | ap-southeast-2 |
-| GCP           | gcloud cli, Apache-Libcloud(==1.2.0)          | Ubuntu 14.04 (ubuntu-1404-trusty-v20170703)| us-east1-b|
-| Azure         | *Coming Soon*                                 |                            |                |
+| GCP           | gcloud cli, Apache-Libcloud(==1.2.0)          | Ubuntu 14.04 (ubuntu-1404-trusty-v20170703)| us-east1-b     |
+| Azure         | *Coming Soon*                                 |                                            |                |
 
 ## Design
 
@@ -22,8 +22,13 @@ The idea of this project is to make easy deployment of our infrastructure using 
 ## Setup
 
 * [Terraform](#terraform)
-* [Connecting the Two](#connecting-the-two)
 * [Ansible](#ansible)
+
+## Sample Video Demonstrations
+
+Sample video output can be found out for Google Cloud Platform [here](https://youtu.be/EE1Z_9F98vU) :
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=EE1Z_9F98vU" target="_blank"><img src="http://img.youtube.com/vi/EE1Z_9F98vU/0.jpg" alt="IMAGE ALT TEXT HERE" width="560" height="315" /></a>
 
 ### Terraform
 
@@ -87,32 +92,113 @@ You can now check gcloud cli working by running any of the gcloud available comm
 8. Now you can run your commands to kickstart 3 vm instaces (sample1,sample2,sample3) using 
 
 ````
+$ terraform get
 $ terraform plan
 $ terraform apply
 ````
 
-### Connecting the Two
-
-One common thing that we need in order to run our playbooks is the ip's and tags associated with it in our dynamic inverntory (hosts file)
-
 ### Ansible
+
+In order to use ansible I am using the config at dynamic inventory located at /etc/ansible/ansible.cfg and /etc/ansible/hosts.Here are the changes I made after configuration:
+
+````
+[defaults]
+
+# some basic default values...
+
+inventory      = /etc/ansible/hosts
+library        = /usr/share/my_modules/
+remote_tmp     = $HOME/.ansible/tmp
+local_tmp      = $HOME/.ansible/tmp
+forks          = 5
+poll_interval  = 15
+sudo_user      = root
+#ask_sudo_pass = True
+#ask_pass      = True
+#transport      = smart
+remote_port    = 22
+#module_lang    = C
+#module_set_locale = True
+
+# uncomment this to disable SSH key host checking
+host_key_checking = False
+
+# if True, make ansible use scp if the connection type is ssh
+# (default is sftp)
+scp_if_ssh = True
+
+[selinux]
+# file systems that require special treatment when dealing with security context
+# the default behaviour that copies the existing context or uses the user default
+# needs to be changed to use the file system dependent context.
+#special_context_filesystems=nfs,vboxsf,fuse,ramfs
+
+# Set this to yes to allow libvirt_lxc connections to work without SELinux.
+libvirt_lxc_noseclabel = yes
+````
+
+/etc/ansible/hosts file:
+
+````
+[local]
+127.0.0.1 ansible_connection=local
+
+[ec2]
+XX.XX.XX.XX ansible_user=ubuntu
+
+[gce]
+XX.XX.XX.XX ansible_ssh_user=ubuntu
+XX.XX.XX.XX ansible_ssh_user=ubuntu
+XX.XX.XX.XX ansible_ssh_user=ubuntu
+
+[gce1]
+XX.XX.XX.XX ansible_ssh_user=ubuntu
+````
+#### Ansible Playbooks Manual Configurations
+
+[Ref](https://github.com/ansible/ansible/issues/19584) 
+
+````
+ssh-agent bash
+ssh-add <path to private key>
+````
+
+Set *hosts:* parameters according to the cloud provider you want,for example:
+
+````
+hosts: aws
+hosts: gce
+hosts: azure
+````
+
+| Files         | AWS                               | GCP                                        |    Azure                                |
+| ------------- |:---------------------------------:|:------------------------------------------:|-----------------------------------------|
+| consul.yml    | *Nil     *                        | *Nil*                                      |  *Nil*                                  |
+| k8s.yml       | *export KUBERNETES_PROVIDER=aws*  | *export KUBERNETES_PROVIDER=gce*           | *export KUBERNETES_PROVIDER=azure*      |
 
   * [AWS](aws)
   
   You can start by setting up your aws enviornment EC2 instance using ec2-configure.yml playbook present in playbooks directory,using the below command:
+
+```` 
+$ ansible all -m ping --ask-pass --ask-sudo-pass
+````
   
-  ````
-  $ sudo ansible-playbook ec2-configure.yml -vv --private-key  <path-to-keypair>
-  ````
+````
+$ sudo ansible-playbook ec2-configure.yml -vv --private-key  <path-to-keypair>
+````
   
   * [GCP](gcp)
-  
-In order to start using ansible we have to export gcloud variables to our local Bash profile.Using this shell script we can easily export variables gcloud variables and gcloud cli.This script is originally available [here](http://blog.viktorpetersson.com/post/134533191074/using-ansible-with-google-cloud-platform-the-easy). 
+
+For running ansible via local machine:
+
+```` 
+$ ansible all -m ping --ask-pass --ask-sudo-pass
+````
 
 ````
-$ source export.sh
+sudo ansible-playbook <NAME>.yml --private-key = <NAME-OF-FILE>
 ````
-
 ## License
 
 MIT License

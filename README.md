@@ -28,7 +28,7 @@ The idea of this project is to make easy deployment of our infrastructure using 
 
 Sample video output can be found out for Google Cloud Platform [here](https://youtu.be/EE1Z_9F98vU) :
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=EE1Z_9F98vU" target="_blank"><img src="http://img.youtube.com/vi/EE1Z_9F98vU/0.jpg" alt="IMAGE ALT TEXT HERE" width="560" height="315" /></a>
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=EE1Z_9F98vU" target="_blank"><img src="http://img.youtube.com/vi/EE1Z_9F98vU/0.jpg" alt="IMAGE ALT TEXT HERE" width="530" height="360" /></a>
 
 ### Terraform
 

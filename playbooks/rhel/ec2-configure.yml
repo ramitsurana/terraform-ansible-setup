@@ -1,0 +1,32 @@
+---
+
+- name: Configure EC2 instance
+  hosts: ec2
+  connection: ssh
+  sudo: true
+
+
+  tasks:
+  - name: Update the machine
+    command: yum update -y
+    
+  - name: Installing essentials
+    become: yes
+    command: yum install yum-utils wget -y
+      
+  - name: Configuring Yum
+    become: yes
+    command: yum-config-manager --enable rhui-REGION-rhel-server-extras
+  
+  - name: Installing docker
+    become: yes
+    command: yum install docker -y
+
+  - name: Restarting docker service
+    become: yes
+    command: service docker restart 
+
+  - name: Update the machine
+    command: yum update -y
+    
+    

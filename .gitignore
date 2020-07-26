@@ -9,3 +9,4 @@
 *.tfvars
 
 *.retry
+playbooks/*.swp
